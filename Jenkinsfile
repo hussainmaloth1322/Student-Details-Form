@@ -1,33 +1,55 @@
+
 pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+
+        stage('Git Checkout') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/hussainmaloth1322/Student-Details-Form.git'
+            }
+        }
+
+        stage('Check Docker') {
+            steps {
+                bat 'docker --version'
+                bat 'docker info'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t student-form .'
+                bat 'docker build -t student-details-app .'
+            }
+        }
+
+        stage('Remove Old Container') {
+            steps {
+                bat 'docker rm -f student-details || exit /b 0'
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                // Remove an older container if it exists. The run command below
-                // will still fail visibly if Docker itself is unavailable.
-                bat 'docker rm -f student-form-container 2>NUL || exit /b 0'
-                // Host port 8081 avoids the usual Jenkins UI port 8080.
-                bat 'docker run -d -p 8081:80 --name student-form-container student-form'
+                bat 'docker run -d --name student-details -p 8080:80 student-details-app'
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                bat 'docker ps'
             }
         }
     }
 
     post {
         success {
-            echo 'Student form container started. Open http://localhost:8081'
+            echo 'Student Details Form deployed successfully!'
+        }
+
+        failure {
+            echo 'Build or deployment failed. Check Jenkins console output.'
         }
     }
 }
