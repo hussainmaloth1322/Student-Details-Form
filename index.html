@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details Registration</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f4f8;
+            margin: 0;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #243b55;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+            margin: 5px;
+        }
+
+        .submit-btn {
+            background: #007bff;
+            width: 100%;
+        }
+
+        .print-btn {
+            background: #198754;
+        }
+
+        .clear-btn {
+            background: #dc3545;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        #successMessage {
+            display: none;
+            color: green;
+            text-align: center;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        #report {
+            margin-top: 35px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background: #243b55;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f2f4f8;
+        }
+
+        #studentCount {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 15px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+
+            form, .print-btn, .clear-btn, #successMessage {
+                display: none !important;
+            }
+
+            #report {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Student Details Registration Form</h1>
+
+    <form id="studentForm">
+
+        <div class="form-group">
+            <label for="name">Student Name *</label>
+            <input type="text" id="name"
+                   placeholder="Enter student name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email"
+                   placeholder="Enter email address" required>
+        </div>
+
+        <div class="form-group">
+            <label for="roll">Roll Number *</label>
+            <input type="text" id="roll"
+                   placeholder="Enter roll number" required>
+        </div>
+
+        <div class="form-group">
+            <label for="department">Department *</label>
+            <select id="department" required>
+                <option value="">Select Department</option>
+                <option value="CSE">Computer Science (CSE)</option>
+                <option value="ECE">Electronics (ECE)</option>
+                <option value="EEE">Electrical (EEE)</option>
+                <option value="IT">Information Technology (IT)</option>
+                <option value="MECH">Mechanical (MECH)</option>
+                <option value="CIVIL">Civil Engineering</option>
+            </select>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Submit Student Details
+        </button>
+
+    </form>
+
+    <p id="successMessage">
+        Student details submitted successfully!
+    </p>
+
+    <section id="report">
+
+        <h2>Registered Students Report</h2>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Roll Number</th>
+                        <th>Department</th>
+                    </tr>
+                </thead>
+
+                <tbody id="studentTableBody">
+                    <tr id="emptyRow">
+                        <td colspan="5">No students registered yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p id="studentCount">Total Students: 0</p>
+
+        <div style="text-align:center;">
+            <button type="button" class="print-btn"
+                    onclick="window.print()">
+                Print Student Report
+            </button>
+
+            <button type="button" class="clear-btn"
+                    onclick="clearStudents()">
+                Clear All Records
+            </button>
+        </div>
+
+    </section>
+
+</div>
+
+<script>
+
+    // Array to store all registered students
+    let students = [];
+
+    // Form submission
+    document.getElementById("studentForm")
+        .addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        // Get form values
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const roll = document.getElementById("roll").value.trim();
+        const department = document.getElementById("department").value;
+
+        // Mandatory field validation
+        if (!name || !email || !roll || !department) {
+            alert("Please fill all mandatory fields!");
+            return;
+        }
+
+        // Email validation
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailPattern.test(email)) {
+            alert("Please enter a valid email address!");
+            return;
+        }
+
+        // Prevent duplicate roll numbers
+        const duplicate = students.some(
+            student => student.roll.toLowerCase() === roll.toLowerCase()
+        );
+
+        if (duplicate) {
+            alert("This roll number is already registered!");
+            return;
+        }
+
+        // Create student object
+        const student = {
+            name: name,
+            email: email,
+            roll: roll,
+            department: department
+        };
+
+        // Add student to array
+        students.push(student);
+
+        // Display all registered students
+        displayStudents();
+
+        // Show success message
+        const message = document.getElementById("successMessage");
+        message.style.display = "block";
+
+        // Reset form
+        this.reset();
+
+    });
+
+    // Display all students in report table
+    function displayStudents() {
+
+        const tableBody =
+            document.getElementById("studentTableBody");
+
+        tableBody.innerHTML = "";
+
+        students.forEach((student, index) => {
+
+            const row = document.createElement("tr");
+
+            const values = [
+                index + 1,
+                student.name,
+                student.email,
+                student.roll,
+                student.department
+            ];
+
+            values.forEach(value => {
+
+                const cell = document.createElement("td");
+
+                cell.textContent = value;
+
+                row.appendChild(cell);
+
+            });
+
+            tableBody.appendChild(row);
+
+        });
+
+        // Update student count
+        document.getElementById("studentCount").textContent =
+            "Total Students: " + students.length;
+
+    }
+
+    // Clear all registered students
+    function clearStudents() {
+
+        if (students.length === 0) {
+            alert("No student records to clear!");
+            return;
+        }
+
+        const confirmClear = confirm(
+            "Are you sure you want to clear all student records?"
+        );
+
+        if (confirmClear) {
+
+            students = [];
+
+            displayStudents();
+
+            document.getElementById("studentTableBody").innerHTML =
+                '<tr><td colspan="5">No students registered yet.</td></tr>';
+
+            document.getElementById("successMessage").style.display =
+                "none";
+
+            alert("All student records cleared successfully!");
+
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
