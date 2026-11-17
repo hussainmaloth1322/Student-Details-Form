@@ -32,7 +32,7 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d --name student-details -p 8080:80 student-details-app'
+                bat 'docker run -d --name student-details -p 8081:80 student-details-app'
             }
         }
 
@@ -46,10 +46,11 @@ pipeline {
     post {
         success {
             echo 'Student Details Form deployed successfully!'
+            echo 'Application URL: http://localhost:8081'
         }
 
         failure {
-            echo 'Build or deployment failed. Check Jenkins console output.'
+            echo 'Build or deployment failed. Check Jenkins Console Output.'
         }
     }
 }
